@@ -1,7 +1,18 @@
 "use client"
 
 import { useState } from "react"
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Dimensions } from "react-native"
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Image,
+  TouchableOpacity,
+  Dimensions,
+  Linking,
+  Alert,
+  Platform,
+} from "react-native"
 
 const { width } = Dimensions.get("window")
 
@@ -28,6 +39,46 @@ const CultivationGuidance = () => {
   const handlePrevious = () => {
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1)
+    }
+  }
+
+  // Function to handle YouTube video opening
+  const openYoutubeVideo = async (url) => {
+    try {
+      // Extract video ID from URL
+      const videoId = url.split("v=")[1]
+
+      if (Platform.OS === "ios") {
+        // Try to open in YouTube app first on iOS
+        const youtubeUrl = `youtube://watch?v=${videoId}`
+        const canOpenYoutube = await Linking.canOpenURL(youtubeUrl)
+
+        if (canOpenYoutube) {
+          await Linking.openURL(youtubeUrl)
+        } else {
+          // Fallback to Safari
+          await Linking.openURL(`https://m.youtube.com/watch?v=${videoId}`)
+        }
+      } else {
+        // For Android, try to open in YouTube app
+        const youtubeUrl = `vnd.youtube://${videoId}`
+        const canOpenYoutube = await Linking.canOpenURL(youtubeUrl)
+
+        if (canOpenYoutube) {
+          await Linking.openURL(youtubeUrl)
+        } else {
+          // Fallback to browser
+          await Linking.openURL(`https://m.youtube.com/watch?v=${videoId}`)
+        }
+      }
+    } catch (error) {
+      // Show error message
+      Alert.alert(
+        "Error",
+        "Could not open YouTube video. Please make sure you have YouTube installed or try again later.",
+        [{ text: "OK" }],
+      )
+      console.error("Error opening YouTube:", error)
     }
   }
 
@@ -67,7 +118,15 @@ const CultivationGuidance = () => {
                 {`${index + 1}. ${step}`}
               </Text>
             ))}
+
             <Image source={sections[currentSteps[currentStep]].image} style={styles.image} />
+
+            <TouchableOpacity
+              style={styles.videoButton}
+              onPress={() => openYoutubeVideo(sections[currentSteps[currentStep]].videoUrl)}
+            >
+              <Text style={styles.videoButtonText}>Click to Watch Video </Text>
+            </TouchableOpacity>
           </View>
 
           <View style={styles.navigationButtons}>
@@ -92,6 +151,7 @@ const CultivationGuidance = () => {
   )
 }
 
+// Update the sections array with proper YouTube URLs
 const sections = [
   {
     title: "1. Land Preparation",
@@ -103,6 +163,7 @@ const sections = [
       "Ensure soil pH is between 5.5 and 6.5.",
     ],
     image: require("./assets/c1.jpg"),
+    videoUrl: "https://www.youtube.com/watch?v=mNr1q54niyQ",
   },
   {
     title: "2. Seed Selection and Treatment",
@@ -113,6 +174,7 @@ const sections = [
       "Allow seeds to sprout in indirect sunlight for 2-3 days before planting.",
     ],
     image: require("./assets/c2.jpg"),
+    videoUrl: "https://www.youtube.com/watch?v=nMpTyiOqo_w",
   },
   {
     title: "3. Planting",
@@ -123,6 +185,7 @@ const sections = [
       "Cover the tubers with soil gently to avoid damage.",
     ],
     image: require("./assets/c3.jpg"),
+    videoUrl: "https://www.youtube.com/watch?v=7SED1QqY68k",
   },
   {
     title: "4. Irrigation",
@@ -133,6 +196,7 @@ const sections = [
       "Reduce watering during the tuber bulking stage to prevent fungal diseases.",
     ],
     image: require("./assets/c4.jpg"),
+    videoUrl: "https://www.youtube.com/watch?v=Z9HAy9EYKKs",
   },
   {
     title: "5. Fertilizer Application",
@@ -143,6 +207,7 @@ const sections = [
       "Avoid over-fertilization to prevent excessive foliage and reduced tuber growth.",
     ],
     image: require("./assets/c5.jpg"),
+    videoUrl: "https://www.youtube.com/watch?v=-4JfSkYoKrw",
   },
   {
     title: "6. Weed and Pest Management",
@@ -154,6 +219,7 @@ const sections = [
       "Use biological or chemical control as needed.",
     ],
     image: require("./assets/c6.jpg"),
+    videoUrl: "https://www.youtube.com/watch?v=4IpisBuwcH4",
   },
   {
     title: "7. Disease Monitoring",
@@ -164,6 +230,7 @@ const sections = [
       "Spray recommended fungicides at early stages.",
     ],
     image: require("./assets/c7.jpg"),
+    videoUrl: "https://www.youtube.com/watch?v=D-MuVAmFEo0",
   },
   {
     title: "8. Tuber Bulking",
@@ -174,6 +241,7 @@ const sections = [
       "Hill up soil around plants to protect tubers from sun exposure.",
     ],
     image: require("./assets/c8.jpg"),
+    videoUrl: "https://www.youtube.com/watch?v=nt8QjuJVO1o&t=12s",
   },
   {
     title: "9. Harvesting",
@@ -184,6 +252,7 @@ const sections = [
       "Dry harvested tubers in shade for 2-3 days before storage.",
     ],
     image: require("./assets/c9.jpg"),
+    videoUrl: "https://www.youtube.com/watch?v=nOKnqM_jSfE",
   },
   {
     title: "10. Storage",
@@ -194,6 +263,7 @@ const sections = [
       "Use sprout inhibitors if planning long-term storage.",
     ],
     image: require("./assets/c10.jpg"),
+    videoUrl: "https://www.youtube.com/watch?v=jan5CFWs9ic",
   },
 ]
 
@@ -283,6 +353,29 @@ const styles = StyleSheet.create({
     height: 200,
     borderRadius: 10,
     marginTop: 10,
+  },
+  videoButton: {
+    backgroundColor: "#e74c3c",
+    padding: 12,
+    borderRadius: 5,
+    marginTop: 10,
+    alignItems: "center",
+  },
+  videoButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  debugButton: {
+    backgroundColor: "#3498db",
+    padding: 8,
+    borderRadius: 5,
+    marginTop: 10,
+    alignItems: "center",
+  },
+  debugButtonText: {
+    color: "#fff",
+    fontSize: 14,
   },
   navigationButtons: {
     flexDirection: "row",

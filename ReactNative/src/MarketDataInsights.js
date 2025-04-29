@@ -14,58 +14,113 @@ const MarketDataInsights = () => {
 
   const cityMarketData = [
     {
-      name: "New York",
-      currentPrice: 1200,
+      name: "Lahore",
+      currentPrice: 60,
       historicalData: [
-        { month: "Jan", price: 1100 },
-        { month: "Feb", price: 1150 },
-        { month: "Mar", price: 1200 },
-        { month: "Apr", price: 1250 },
-        { month: "May", price: 1300 },
+        { month: "Jan", price: 55 },
+        { month: "Feb", price: 60 },
+        { month: "Mar", price: 65 },
+        { month: "Apr", price: 68 },
+        { month: "May", price: 70 },
       ],
     },
     {
-      name: "Los Angeles",
-      currentPrice: 900,
+      name: "Karachi",
+      currentPrice: 57,
       historicalData: [
-        { month: "Jan", price: 800 },
-        { month: "Feb", price: 850 },
-        { month: "Mar", price: 900 },
-        { month: "Apr", price: 950 },
-        { month: "May", price: 1000 },
+        { month: "Jan", price: 55 },
+        { month: "Feb", price: 53 },
+        { month: "Mar", price: 58 },
+        { month: "Apr", price: 60 },
+        { month: "May", price: 65 },
       ],
     },
     {
-      name: "Chicago",
-      currentPrice: 700,
+      name: "Peshawar",
+      currentPrice: 50,
       historicalData: [
-        { month: "Jan", price: 600 },
-        { month: "Feb", price: 650 },
-        { month: "Mar", price: 700 },
-        { month: "Apr", price: 750 },
-        { month: "May", price: 800 },
+        { month: "Jan", price: 50 },
+        { month: "Feb", price: 45 },
+        { month: "Mar", price: 48 },
+        { month: "Apr", price: 55 },
+        { month: "May", price: 60 },
       ],
     },
     {
-      name: "Houston",
-      currentPrice: 500,
+      name: "Quetta",
+      currentPrice: 55,
       historicalData: [
-        { month: "Jan", price: 400 },
-        { month: "Feb", price: 450 },
-        { month: "Mar", price: 500 },
-        { month: "Apr", price: 550 },
-        { month: "May", price: 600 },
+        { month: "Jan", price: 55 },
+        { month: "Feb", price: 60 },
+        { month: "Mar", price: 55 },
+        { month: "Apr", price: 58 },
+        { month: "May", price: 63 },
       ],
     },
     {
-      name: "Phoenix",
-      currentPrice: 600,
+      name: "Rawalpindi",
+      currentPrice: 65,
       historicalData: [
-        { month: "Jan", price: 500 },
-        { month: "Feb", price: 550 },
-        { month: "Mar", price: 600 },
-        { month: "Apr", price: 650 },
-        { month: "May", price: 700 },
+        { month: "Jan", price: 50 },
+        { month: "Feb", price: 60 },
+        { month: "Mar", price: 65 },
+        { month: "Apr", price: 68 },
+        { month: "May", price: 70 },
+      ],
+    },
+    {
+      name: "Faisalabad",
+      currentPrice: 48,
+      historicalData: [
+        { month: "Jan", price: 50 },
+        { month: "Feb", price: 53 },
+        { month: "Mar", price: 48 },
+        { month: "Apr", price: 60 },
+        { month: "May", price: 55 },
+      ],
+    },
+    {
+      name: "Multan",
+      currentPrice: 60,
+      historicalData: [
+        { month: "Jan", price: 50 },
+        { month: "Feb", price: 60 },
+        { month: "Mar", price: 60 },
+        { month: "Apr", price: 65 },
+        { month: "May", price: 70 },
+      ],
+    },
+    {
+      name: "Hyderabad",
+      currentPrice: 63,
+      historicalData: [
+        { month: "Jan", price: 60 },
+        { month: "Feb", price: 50 },
+        { month: "Mar", price: 55 },
+        { month: "Apr", price: 60 },
+        { month: "May", price: 65 },
+      ],
+    },
+    {
+      name: "Sialkot",
+      currentPrice: 50,
+      historicalData: [
+        { month: "Jan", price: 40 },
+        { month: "Feb", price: 45 },
+        { month: "Mar", price: 50 },
+        { month: "Apr", price: 45 },
+        { month: "May", price: 55 },
+      ],
+    },
+    {
+      name: "Abbottabad",
+      currentPrice: 45,
+      historicalData: [
+        { month: "Jan", price: 50 },
+        { month: "Feb", price: 45 },
+        { month: "Mar", price: 40 },
+        { month: "Apr", price: 40 },
+        { month: "May", price: 45 },
       ],
     },
   ]
@@ -183,7 +238,7 @@ const MarketDataInsights = () => {
             <View style={styles.cityHeader}>
               <Text style={styles.cityTitle}>{city.name}</Text>
               <View style={styles.priceTag}>
-                <Text style={styles.priceTagText}>Current: {city.currentPrice}</Text>
+                <Text style={styles.priceTagText}>Average: {city.currentPrice}</Text>
               </View>
             </View>
 
