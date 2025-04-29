@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const Navbar = () => {
     const navigation = useNavigation();
@@ -22,7 +21,7 @@ const Navbar = () => {
                     style={styles.cameraButton}
                     onPress={handleCamera}
                 >
-                    <Icon name="camera-alt" size={24} color="#fff" />
+                    <Text style={styles.iconText}>📷</Text>
                 </TouchableOpacity>
             </View>
             
@@ -31,7 +30,7 @@ const Navbar = () => {
                 onPress={handleLogout}
             >
                 <Text style={styles.logoutText}>Logout</Text>
-                <Icon name="logout" size={20} color="#fff" style={styles.logoutIcon} />
+                <Text style={styles.iconText}>🚪</Text>
             </TouchableOpacity>
         </View>
     );
@@ -74,6 +73,9 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
         marginRight: 5,
+    },
+    iconText: {
+        fontSize: 20,
     },
     logoutIcon: {
         marginLeft: 5,

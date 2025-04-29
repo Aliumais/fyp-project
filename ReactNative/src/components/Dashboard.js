@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Dimensions, Modal } from "react-native"
+import { useState, useEffect } from "react"
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Dimensions, Modal, TextInput } from "react-native"
 
 const { width } = Dimensions.get("window")
 
@@ -16,19 +16,49 @@ const Dashboard = ({ navigation }) => {
     return "🌤️" // default to partly cloudy
   }
 
-  const [weatherInfo, setWeatherInfo] = useState({
-    current: { temp: "25°C", condition: "Sunny", icon: getWeatherIcon("Sunny") },
-    forecast: [
-      { day: "Mon", temp: "24°C", icon: getWeatherIcon("Cloudy") },
-      { day: "Tue", temp: "26°C", icon: getWeatherIcon("Sunny") },
-      { day: "Wed", temp: "23°C", icon: getWeatherIcon("Rainy") },
-      { day: "Thu", temp: "25°C", icon: getWeatherIcon("Partly Cloudy") },
-      { day: "Fri", temp: "27°C", icon: getWeatherIcon("Sunny") },
-      { day: "Sat", temp: "26°C", icon: getWeatherIcon("Sunny") },
-      { day: "Sun", temp: "24°C", icon: getWeatherIcon("Cloudy") },
-    ],
-  })
   const [isHelpDrawerVisible, setIsHelpDrawerVisible] = useState(false)
+  const [location, setLocation] = useState(""); // State for user input location
+  const [currentWeather, setCurrentWeather] = useState({ temp: "", condition: "", icon: "" });
+
+  useEffect(() => {
+    const fetchWeatherData = async (lat, lon) => {
+      try {
+        const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=dce088c56173d4ff46072161100191e3&units=metric`);
+        const data = await response.json();
+        if (data.main) {
+          setCurrentWeather({
+            temp: `${Math.round(data.main.temp)}°C`, // Round to nearest integer
+            condition: data.weather[0].description,
+            icon: getWeatherIcon(data.weather[0].main),
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching weather data:", error);
+      }
+    };
+
+    // Removed geolocation functionality
+    // You can call fetchWeatherData with specific coordinates or handle it differently
+
+  }, []);
+
+  const handleSearchWeather = async () => {
+    if (location) {
+      try {
+        const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${location}&appid=dce088c56173d4ff46072161100191e3&units=metric`);
+        const data = await response.json();
+        if (data.main) {
+          setCurrentWeather({
+            temp: `${Math.round(data.main.temp)}°C`, // Round to nearest integer
+            condition: data.weather[0].description,
+            icon: getWeatherIcon(data.weather[0].main),
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching weather data:", error);
+      }
+    }
+  };
 
   const handleButtonPress = (screen) => {
     navigation.navigate(screen)
@@ -75,22 +105,28 @@ const Dashboard = ({ navigation }) => {
       <View style={styles.weatherCard}>
         <Text style={styles.weatherTitle}>Today's Weather</Text>
         <View style={styles.currentWeather}>
-          <Text style={styles.weatherIcon}>{weatherInfo.current.icon}</Text>
+          <Text style={styles.weatherIcon}>{currentWeather.icon}</Text>
           <View>
-            <Text style={styles.weatherTemp}>{weatherInfo.current.temp}</Text>
-            <Text style={styles.weatherCondition}>{weatherInfo.current.condition}</Text>
+            <Text style={styles.weatherTemp}>{currentWeather.temp}</Text>
+            <Text style={styles.weatherCondition}>{currentWeather.condition}</Text>
           </View>
         </View>
-        <View style={styles.forecastContainer}>
-          {weatherInfo.forecast.map((day, index) => (
-            <View key={index} style={styles.forecastDay}>
-              <Text style={styles.forecastDayText}>{day.day}</Text>
-              <Text style={styles.forecastIcon}>{day.icon}</Text>
-              <Text style={styles.forecastTemp}>{day.temp}</Text>
-            </View>
-          ))}
-        </View>
       </View>
+
+      {/* Changed to a button that looks like Search and Need Help */}
+      <TouchableOpacity style={styles.locationButton} onPress={() => {}}>
+        <Text style={styles.buttonCommonText}>Enter Location</Text>
+      </TouchableOpacity>
+      
+      <TextInput
+        style={styles.input}
+        placeholder="Enter location"
+        value={location}
+        onChangeText={setLocation}
+      />
+      <TouchableOpacity style={styles.searchButton} onPress={handleSearchWeather}>
+        <Text style={styles.buttonCommonText}>Search</Text>
+      </TouchableOpacity>
 
       <Text style={styles.sectionTitle}>What would you like to do?</Text>
 
@@ -108,16 +144,28 @@ const Dashboard = ({ navigation }) => {
       </View>
 
       <TouchableOpacity style={styles.helpButton} onPress={toggleHelpDrawer}>
-        <Text style={styles.helpButtonText}>Need Help?</Text>
+        <Text style={styles.buttonCommonText}>Need Help?</Text>
       </TouchableOpacity>
 
       <Modal animationType="slide" transparent={true} visible={isHelpDrawerVisible} onRequestClose={toggleHelpDrawer}>
         <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPressOut={toggleHelpDrawer}>
           <View style={styles.helpDrawer}>
             <Text style={styles.helpDrawerTitle}>Contact Information</Text>
-            <Text style={styles.helpDrawerText}>Name: Ahmad Ali</Text>
+            <Text style={styles.helpDrawerSubtitle}>If you need any assistance, Please Contact Us </Text>
             <Text style={styles.helpDrawerText}>Email: ahmadali@gmail.com</Text>
             <Text style={styles.helpDrawerText}>Phone: +1 (555) 123-4567</Text>
+            
+            {/* Added more content to make the modal longer */}
+            <Text style={styles.helpDrawerSubtitle}>Frequently Asked Questions</Text>
+            <Text style={styles.helpDrawerQuestion}>How do I update my profile?</Text>
+            <Text style={styles.helpDrawerText}>Go to the "Manage Profile" section from the dashboard to update your information.</Text>
+            
+            <Text style={styles.helpDrawerQuestion}>How accurate is the weather information?</Text>
+            <Text style={styles.helpDrawerText}>Weather data is sourced from OpenWeatherMap and is updated regularly for accuracy.</Text>
+            
+            <Text style={styles.helpDrawerQuestion}>Can I get offline access to cultivation guides?</Text>
+            <Text style={styles.helpDrawerText}>Yes, you can download guides for offline use from the Cultivation Guide section.</Text>
+            
             <TouchableOpacity style={styles.closeButton} onPress={toggleHelpDrawer}>
               <Text style={styles.closeButtonText}>Close</Text>
             </TouchableOpacity>
@@ -188,29 +236,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#4a4a4a",
   },
-  forecastContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    borderTopWidth: 1,
-    borderTopColor: "#e0e0e0",
-    paddingTop: 15,
-  },
-  forecastDay: {
-    alignItems: "center",
-  },
-  forecastDayText: {
-    fontSize: 12,
-    color: "#4a4a4a",
-    marginBottom: 5,
-  },
-  forecastIcon: {
-    fontSize: 24,
-    marginBottom: 5,
-  },
-  forecastTemp: {
-    fontSize: 14,
-    color: "#2d5c38",
-  },
   sectionTitle: {
     fontSize: 22,
     fontWeight: "bold",
@@ -266,6 +291,24 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#4a4a4a",
   },
+  // Common button style for all action buttons
+  buttonCommonText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#fff",
+    
+
+  },
+  // New location button that matches Search and Need Help
+ // locationButton: {
+    //backgroundColor: "#27ae60",
+    //borderRadius: 25,
+    //padding: 15,
+    //marginHorizontal: 20,
+    //marginTop: 20,
+    //marginBottom: 10,
+    //alignItems: "center",
+  //},
   helpButton: {
     backgroundColor: "#27ae60",
     borderRadius: 25,
@@ -273,10 +316,12 @@ const styles = StyleSheet.create({
     margin: 20,
     alignItems: "center",
   },
-  helpButtonText: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#fff",
+  searchButton: {
+    backgroundColor: "#27ae60",
+    borderRadius: 25,
+    padding: 15,
+    margin: 20,
+    alignItems: "center",
   },
   modalOverlay: {
     flex: 1,
@@ -288,13 +333,28 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 20,
-    minHeight: 200,
+    minHeight: 400, // Increased from 200 to make it longer
+    maxHeight: '80%', // Added to ensure it doesn't take up the entire screen
   },
   helpDrawerTitle: {
     fontSize: 22,
     fontWeight: "bold",
     color: "#2d5c38",
     marginBottom: 15,
+  },
+  helpDrawerSubtitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#2d5c38",
+    marginTop: 15,
+    marginBottom: 10,
+  },
+  helpDrawerQuestion: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#2d5c38",
+    marginTop: 10,
+    marginBottom: 5,
   },
   helpDrawerText: {
     fontSize: 16,
@@ -313,7 +373,14 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#fff",
   },
+  input: {
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    margin: 15,
+    paddingHorizontal: 10,
+    borderRadius: 5,
+  },
 })
 
 export default Dashboard
-
