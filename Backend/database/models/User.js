@@ -1,76 +1,92 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs'); // Import bcrypt for hashing and comparing passwords
+const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 
 const userSchema = new mongoose.Schema({
     firstName: {
         type: String,
-        required: true, // First name is required
-        trim: true, // Removes extra spaces
+        required: [true, 'First name is required'],
+        trim: true
     },
     lastName: {
         type: String,
-        required: true, // Last name is required
-        trim: true,
+        required: [true, 'Last name is required'],
+        trim: true
     },
     email: {
         type: String,
-        required: true,
+        required: [true, 'Email is required'],
         unique: true,
-        match: /.+\@.+\..+/, // Basic regex for email validation
+        lowercase: true,
+        match: [/^\S+@\S+\.\S+$/, 'Please use a valid email address']
     },
     password: {
         type: String,
-        required: true, // Password is required
+        required: [true, 'Password is required'],
+        minlength: [8, 'Password must be at least 8 characters long']
     },
     contactNumber: {
         type: String,
-        required: true, // Contact number is required
-        match: /^[0-9]{10,15}$/, // Basic validation for 10-15 digit numbers
+        required: [true, 'Contact number is required'],
+        match: [/^[0-9]{10,15}$/, 'Contact number must be between 10 and 15 digits']
     },
-    createdAt: {
+    otp: {
+        type: String,
+        default: null
+    },
+    otpExpires: {
         type: Date,
-        default: Date.now, // Default to the current date
+        default: null
+    },
+    verificationToken: {
+        type: String,
+        default: null
+    },
+    verificationTokenExpires: {
+        type: Date,
+        default: null
+    },
+    isVerified: {
+        type: Boolean,
+        default: false
     },
     resetPasswordToken: {
         type: String,
+        default: null
     },
     resetPasswordExpires: {
         type: Date,
+        default: null
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
     }
 });
 
-// Generate Password Reset Token
-userSchema.methods.generatePasswordResetToken = function() {
-    // Generate token
-    const resetToken = crypto.randomBytes(20).toString('hex');
-    
-    // Hash token and set to resetPasswordToken field
+// Hash password before saving
+userSchema.pre('save', async function (next) {
+    if (this.isModified('password')) {
+        this.password = await bcrypt.hash(this.password, 10);
+    }
+    next();
+});
+
+// Compare password method
+userSchema.methods.comparePassword = async function (candidatePassword) {
+    return await bcrypt.compare(candidatePassword, this.password);
+};
+
+// Generate password reset token
+userSchema.methods.generatePasswordResetToken = function () {
+    const resetToken = crypto.randomBytes(32).toString('hex');
     this.resetPasswordToken = crypto
         .createHash('sha256')
         .update(resetToken)
         .digest('hex');
-
-    // Set expire time to 1 hour
-    this.resetPasswordExpires = Date.now() + 3600000; // 1 hour
-
+    this.resetPasswordExpires = Date.now() + 60 * 60 * 1000; // 1 hour
     return resetToken;
 };
 
-// Method to compare the entered password with the hashed password in the database
-userSchema.methods.comparePassword = function (candidatePassword) {
-    return bcrypt.compare(candidatePassword, this.password); // Compares the candidate password with the hashed password
-};
-
-// Hash the password before saving it to the database (this runs when you save a new user or update an existing user)
-userSchema.pre('save', async function (next) {
-    if (this.isModified('password')) {
-        // If the password is modified (during registration or password change), hash it
-        this.password = await bcrypt.hash(this.password, 10); // Hash the password with 10 salt rounds
-    }
-    next(); // Continue with the save process
-});
-
 // Create and export the User model
-const User = mongoose.model('User', userSchema);
-module.exports = User;
+module.exports = mongoose.model('User', userSchema);
